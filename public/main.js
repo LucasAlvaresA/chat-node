@@ -19,6 +19,18 @@ function renderUserList() {
     });
 }
 
+function addMessage(type, user, message) {
+    let ul = document.querySelector(".chatList");
+    switch (type) {
+        case "status":
+            ul.innerHTML += `<li class="m-status">"${message}"</li>`;
+            break;
+        case "message":
+            ul.innerHTML += `<li class="m-txt"><span>${user}</span>"${message}"</li>`;
+            break;
+    }
+}
+
 loginInput.addEventListener("keyup", (e) => {
     if (e.keyCode === 13) {
         let name = loginInput.value.trim();
@@ -35,6 +47,19 @@ socket.on("userOk", (list) => {
     chatPage.style.display = "flex";
     textInput.focus();
 
+    addMessage("status", null, "Connected!");
+
     userList = list;
+    renderUserList();
+});
+
+socket.on("listUpdate", (data) => {
+    if (data.joined) {
+        addMessage("status", null, data.joined + " joined the chat!");
+    }
+    if (data.left) {
+        addMessage("status", null, data.left + " lefted the chat!");
+    }
+    userList = data.list;
     renderUserList();
 });
